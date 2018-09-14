@@ -17,9 +17,9 @@ RSpec.describe User, type: :model do
   
   describe "password encryption" do
     it "does not save passwords to dee bee" do
-      User.create(username: 'marlene', password: 'shuffleboard')
+      User.create!(username: 'marlene', password: 'shuffleboard')
       user = User.find_by(username: 'marlene')
-      expect(User.password).not_to be('shuffleboard')
+      expect(user.password_digest).not_to be('shuffleboard')
     end
     
     it "encrypts password password using BCrypt" do
@@ -30,15 +30,11 @@ RSpec.describe User, type: :model do
   
   context "find User by credentials" do
     describe "with valid params" do
-      let!(:user) { User.create(username: 'marlene', password: 'shuffleboard') }
-      let!(:usertwo) { User.create(username: 'DW3bZ', password: 'starwars') }
-      it "finds the correct user" do
-        expect(User.find_by_credentials('marlene', 'shuffleboard').where_values_hash).to eq({username: 'marlene', password: 'shuffleboard'})  
-      end
+      let!(:user) { User.create!(username: 'marlene', password: 'shuffleboard') }
+      let!(:usertwo) { User.create!(username: 'DW3bZ', password: 'starwars') }
       
-      it "checks the encrypted password_digest with BCrypt" do 
-        expect(BCrypt::Password).to receive(:new).with(user.password_digest)
-        User.new(username: 'marlene', password: 'shuffleboard')
+      it "finds the correct user" do
+        expect(User.find_by_credentials('marlene', 'shuffleboard')).to eq(User.find_by(username: 'marlene')) 
       end
     end
     
@@ -47,7 +43,7 @@ RSpec.describe User, type: :model do
       let!(:usertwo) { User.create(username: 'DW3bZ', password: 'starwars') }
       
       it "returns nil when given invalid params" do 
-        expect(User.find_by_credentials('DW3bZ', 'shuffleboard').where_values_hash).to be_nil
+        expect(User.find_by_credentials('DW3bZ', 'shuffleboard')).to be_nil
       end
     end
   end
